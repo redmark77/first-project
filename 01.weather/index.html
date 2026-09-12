@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>날씨 앱</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <header class="search-bar">
+      <input type="text" id="cityInput" placeholder="도시 이름을 입력하세요 (예: 서울)" autocomplete="off">
+      <button id="searchBtn" aria-label="검색">🔍</button>
+      <button id="locBtn" aria-label="현재 위치">📍</button>
+    </header>
+
+    <ul id="suggestions" class="suggestions hidden"></ul>
+
+    <main id="content" class="content">
+      <p class="placeholder">도시를 검색하거나 현재 위치 버튼을 눌러보세요.</p>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
