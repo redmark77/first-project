@@ -1,0 +1,487 @@
+<title>날씨 앱 기획서</title>
+<style>
+  :root {
+    --bg: #F5F8FB;
+    --surface: #FFFFFF;
+    --surface-alt: #EEF3F8;
+    --border: #DCE4ED;
+    --text: #1A2430;
+    --text-muted: #5A6B7C;
+    --accent: #2B6CA3;
+    --accent-ink: #17435F;
+    --warm: #C97832;
+    --warm-soft: #F3E1CE;
+    --shadow: 0 1px 2px rgba(23, 40, 58, 0.06), 0 8px 24px rgba(23, 40, 58, 0.05);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0E141B;
+      --surface: #161F29;
+      --surface-alt: #1D2733;
+      --border: #2A3846;
+      --text: #E6EDF4;
+      --text-muted: #93A4B5;
+      --accent: #6FB4E3;
+      --accent-ink: #BFE0F5;
+      --warm: #EFA463;
+      --warm-soft: #3A2C1E;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #0E141B;
+    --surface: #161F29;
+    --surface-alt: #1D2733;
+    --border: #2A3846;
+    --text: #E6EDF4;
+    --text-muted: #93A4B5;
+    --accent: #6FB4E3;
+    --accent-ink: #BFE0F5;
+    --warm: #EFA463;
+    --warm-soft: #3A2C1E;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 56px 24px 96px;
+  }
+
+  header.hero {
+    margin-bottom: 48px;
+  }
+
+  .eyebrow {
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    font-size: 12.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  h1 {
+    font-size: clamp(28px, 4vw, 36px);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 10px 0 12px;
+    text-wrap: balance;
+  }
+
+  .lede {
+    color: var(--text-muted);
+    font-size: 16px;
+    max-width: 58ch;
+  }
+
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-size: 13.5px;
+    color: var(--text-muted);
+  }
+
+  .meta-row strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  section {
+    margin-top: 44px;
+  }
+
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    border-left: 3px solid var(--accent);
+    padding-left: 12px;
+    margin-bottom: 18px;
+  }
+
+  .section-num {
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  h2 {
+    font-size: 19px;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  p { margin: 0 0 12px; }
+  p:last-child { margin-bottom: 0; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 22px;
+    box-shadow: var(--shadow);
+  }
+
+  /* timeline */
+  .timeline {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding-left: 22px;
+  }
+  .timeline::before {
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 6px;
+    bottom: 6px;
+    width: 2px;
+    background: var(--border);
+  }
+  .t-item { position: relative; }
+  .t-item::before {
+    content: "";
+    position: absolute;
+    left: -22px;
+    top: 4px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 3px var(--bg);
+  }
+  .t-date {
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    font-size: 12.5px;
+    color: var(--accent-ink);
+    background: var(--surface-alt);
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 5px;
+    margin-bottom: 6px;
+  }
+  .t-title { font-weight: 600; margin-bottom: 4px; }
+  .t-body { color: var(--text-muted); font-size: 14.5px; }
+  .t-hash {
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+
+  /* feature list */
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+  }
+  .feature {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .feature-title {
+    font-weight: 600;
+    font-size: 14.5px;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .feature-desc {
+    color: var(--text-muted);
+    font-size: 13.5px;
+  }
+
+  /* icon strip */
+  .icon-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .icon-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 6px 14px 6px 10px;
+    font-size: 13.5px;
+  }
+  .icon-chip .glyph { font-size: 17px; }
+
+  /* table */
+  .table-wrap { overflow-x: auto; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  th, td {
+    text-align: left;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  th {
+    background: var(--surface-alt);
+    font-size: 12.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+  tr:last-child td { border-bottom: none; }
+  td.label { font-weight: 600; white-space: nowrap; }
+
+  .pill {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 9px;
+    border-radius: 999px;
+  }
+  .pill.done { background: #DCEEE0; color: #1F6F3D; }
+  .pill.warn { background: var(--warm-soft); color: var(--warm); }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .pill.done { background: #163828; color: #7FD9A0; }
+  }
+  :root[data-theme="dark"] .pill.done { background: #163828; color: #7FD9A0; }
+
+  /* file tree */
+  pre.tree {
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    font-size: 13px;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    line-height: 1.55;
+  }
+  pre.tree .dim { color: var(--text-muted); }
+  pre.tree .hi { color: var(--accent-ink); font-weight: 600; }
+
+  /* checklist */
+  ul.checklist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  ul.checklist li {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: 14.5px;
+  }
+  ul.checklist li::before {
+    content: "";
+    flex: none;
+    width: 16px;
+    height: 16px;
+    margin-top: 3px;
+    border: 1.5px solid var(--accent);
+    border-radius: 4px;
+  }
+
+  .note {
+    border-left: 3px solid var(--warm);
+    background: var(--warm-soft);
+    padding: 12px 16px;
+    border-radius: 0 8px 8px 0;
+    font-size: 14px;
+    color: var(--text);
+  }
+  .note strong { color: var(--warm); }
+
+  footer {
+    margin-top: 56px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 12.5px;
+  }
+
+  code.inline {
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-size: 0.92em;
+  }
+</style>
+
+<div class="page">
+
+  <header class="hero">
+    <div class="eyebrow">Project Plan · 01. weather</div>
+    <h1>날씨 앱 기획서</h1>
+    <p class="lede">지금까지 <code class="inline">01. weather</code> 디렉토리에서 진행된 작업을 정리한 현황 기획서입니다. 커밋 이력과 실제 코드를 기준으로 작성했습니다.</p>
+    <div class="meta-row">
+      <span><strong>작성일</strong> 2026-09-13</span>
+      <span><strong>작성자</strong> 빨간표 (redmark77@gmail.com)</span>
+      <span><strong>위치</strong> C:\vibeCoding\10.Test\first-project\01. weather</span>
+      <span><strong>커밋 수</strong> 3건</span>
+    </div>
+  </header>
+
+  <section>
+    <div class="section-head"><span class="section-num">01</span><h2>프로젝트 개요</h2></div>
+    <div class="card">
+      <p>도시 이름을 검색하거나 현재 위치를 이용해 실시간 날씨와 주간 예보를 보여주는 한국어 웹앱입니다. 회원가입이나 API 키 없이 <strong>Open-Meteo</strong>(예보)와 <strong>Nominatim</strong>(지명 검색, OpenStreetMap)만으로 동작하도록 만들어졌습니다.</p>
+      <p>같은 기능을 가진 두 가지 구현체가 나란히 존재합니다 — 처음 만든 <strong>순수 HTML/CSS/JS 버전</strong>과, 이후 다시 작성한 <strong>Vite + TypeScript 버전</strong>(<code class="inline">weather-vite/</code>)입니다.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><span class="section-num">02</span><h2>진행 경과</h2></div>
+    <div class="timeline">
+      <div class="t-item">
+        <div class="t-date">2026-09-12</div>
+        <div class="t-title">날씨 앱 최초 작성</div>
+        <div class="t-body">Open-Meteo 예보 API와 Nominatim 지명 검색을 사용하는 순수 HTML/CSS/JS 버전을 작성. <code class="inline">index.html</code>, <code class="inline">script.js</code>, <code class="inline">style.css</code> 3개 파일, 약 460줄.</div>
+        <div class="t-hash">721afcd · Add weather app (01.weather)</div>
+      </div>
+      <div class="t-item">
+        <div class="t-date">2026-09-13</div>
+        <div class="t-title">Vite + TypeScript 재작성 및 검증 자료 추가</div>
+        <div class="t-body">기존 버전은 그대로 두고 <code class="inline">weather-vite/</code>에 TypeScript로 재작성(총 약 1,500줄, 의존성 포함). 서울 날씨 조회 스크린샷과 검색 흐름 스크린샷 4장, <code class="inline">CLAUDE.md</code> 개인 정보/작업 규칙 메모 추가.</div>
+        <div class="t-hash">de52bc3 · Update 01.weather: add Vite+TS rewrite, screenshots, and project notes</div>
+      </div>
+      <div class="t-item">
+        <div class="t-date">2026-09-13</div>
+        <div class="t-title">폴더명 정리</div>
+        <div class="t-body"><code class="inline">01.weather</code> → <code class="inline">01. weather</code>로 폴더명을 로컬 작업 폴더 이름과 일치하도록 변경.</div>
+        <div class="t-hash">c82b6f0 · Rename project folders to match source names and sync latest content</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><span class="section-num">03</span><h2>핵심 기능</h2></div>
+    <div class="feature-grid">
+      <div class="feature">
+        <div class="feature-title">🔍 도시 검색 자동완성</div>
+        <div class="feature-desc">2자 이상 입력 시 600ms 디바운스 후 Nominatim으로 후보 최대 5개 조회, 지역명과 함께 드롭다운 표시.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-title">📍 현재 위치 조회</div>
+        <div class="feature-desc">브라우저 Geolocation API로 좌표를 얻어 바로 날씨를 표시. 미지원/거부 시 에러 메시지 표시.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-title">🌡️ 실시간 날씨</div>
+        <div class="feature-desc">현재 기온, 체감 온도, 습도, 풍속과 날씨 상태(코드→설명/아이콘 매핑)를 카드로 표시.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-title">📅 주간 예보</div>
+        <div class="feature-desc">오늘 포함 향후 예보의 요일별 최고/최저 기온과 날씨 아이콘을 목록으로 표시.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-title">⌨️ 검색 UX</div>
+        <div class="feature-desc">Enter로 첫 결과 바로 선택, 바깥 클릭 시 드롭다운 닫힘, 검색 실패/네트워크 오류 안내 메시지 처리.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-title">🈚 API 키 불필요</div>
+        <div class="feature-desc">Open-Meteo·Nominatim 모두 무료/무인증 공개 API라 백엔드나 키 관리가 필요 없음.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><span class="section-num">04</span><h2>날씨 상태 아이콘 매핑</h2></div>
+    <p style="color:var(--text-muted); font-size: 14px; margin-bottom: 14px;">Open-Meteo의 WMO 날씨 코드를 한국어 설명과 이모지로 변환해 보여줍니다 (총 27개 코드 매핑, 일부 예시):</p>
+    <div class="icon-strip">
+      <span class="icon-chip"><span class="glyph">☀️</span>맑음</span>
+      <span class="icon-chip"><span class="glyph">⛅</span>구름 조금</span>
+      <span class="icon-chip"><span class="glyph">☁️</span>흐림</span>
+      <span class="icon-chip"><span class="glyph">🌦️</span>이슬비</span>
+      <span class="icon-chip"><span class="glyph">🌧️</span>비</span>
+      <span class="icon-chip"><span class="glyph">❄️</span>강한 눈</span>
+      <span class="icon-chip"><span class="glyph">⛈️</span>뇌우</span>
+      <span class="icon-chip"><span class="glyph">🌫️</span>안개</span>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><span class="section-num">05</span><h2>두 버전 비교</h2></div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>구분</th><th>원본 (루트)</th><th>Vite + TS 버전 (weather-vite/)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="label">언어</td><td>HTML / CSS / JavaScript(ES6)</td><td>HTML / CSS / TypeScript</td></tr>
+          <tr><td class="label">빌드 도구</td><td>없음 — 파일 그대로 브라우저에서 실행</td><td>Vite 8 (<code class="inline">npm run dev</code> / <code class="inline">build</code>)</td></tr>
+          <tr><td class="label">코드 구조</td><td><code class="inline">script.js</code> 하나에 UI·API 로직 전부</td><td><code class="inline">weather.ts</code>(API·타입) / <code class="inline">main.ts</code>(UI)로 분리</td></tr>
+          <tr><td class="label">타입 안정성</td><td>없음</td><td>있음 — <code class="inline">GeoResult</code>, <code class="inline">WeatherResponse</code> 인터페이스 정의</td></tr>
+          <tr><td class="label">상태</td><td><span class="pill done">동작 확인됨</span></td><td><span class="pill done">동작 확인됨</span> (dev server 구동 확인)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><span class="section-num">06</span><h2>파일 구성</h2></div>
+    <pre class="tree"><span class="hi">01. weather/</span>
+├── index.html, script.js, style.css        <span class="dim"># 원본 vanilla 버전</span>
+├── CLAUDE.md                                <span class="dim"># 개인 정보 + 작업 규칙 메모</span>
+├── novle.md                                 <span class="dim"># 날씨 앱과 무관한 영문 짧은 이야기 (미확인 잔여 파일)</span>
+├── *.png (4개)                              <span class="dim"># 수동 검증용 스크린샷</span>
+├── test-results/.last-run.json              <span class="dim"># Playwright MCP 실행 흔적 (테스트 코드 없음)</span>
+└── <span class="hi">weather-vite/</span>                            <span class="dim"># TypeScript 재작성 버전</span>
+    ├── src/main.ts                          <span class="dim"># UI·이벤트 처리</span>
+    ├── src/weather.ts                       <span class="dim"># API 호출 + 타입 정의</span>
+    ├── src/style.css
+    ├── public/icons.svg, favicon.svg
+    └── package.json (Vite 8, TypeScript 6)</pre>
+  </section>
+
+  <section>
+    <div class="section-head"><span class="section-num">07</span><h2>테스트·검증 현황</h2></div>
+    <div class="card">
+      <p>정식 자동화 테스트 코드(<code class="inline">*.spec.ts</code> 등)는 저장소에 없습니다. <code class="inline">test-results/.last-run.json</code>과 4장의 스크린샷(<code class="inline">naver-home.png</code>, <code class="inline">naver-search-choiseungho.png</code>, <code class="inline">google-search-vibe-coding.png</code>, <code class="inline">weather-vite-seoul.png</code>)은 Playwright/Chrome 브라우저 자동화로 서울 날씨 조회 등을 <strong>수동 확인</strong>한 결과물로 보입니다.</p>
+    </div>
+    <div class="note" style="margin-top:14px;">
+      <strong>참고</strong> — <code class="inline">.last-run.json</code>은 status <code class="inline">"failed"</code>를 기록하고 있지만 <code class="inline">failedTests</code> 목록은 비어 있어, 실제 회귀 테스트 스위트가 아니라 임시 실행 흔적에 가깝습니다.
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><span class="section-num">08</span><h2>다음 단계 제안</h2></div>
+    <div class="card">
+      <ul class="checklist">
+        <li>두 구현(vanilla / Vite+TS) 중 계속 유지할 버전을 정하고 하나로 통합할지 결정</li>
+        <li>Playwright 테스트 코드를 실제로 작성해 <code class="inline">test-results/</code>가 의미 있는 결과를 남기도록 정비</li>
+        <li>날씨 앱과 무관한 <code class="inline">novle.md</code> 등 잔여 파일 정리</li>
+        <li>정적 배포(Vercel/Netlify/GitHub Pages 등) 여부 결정 — 현재는 로컬 실행만 가능</li>
+        <li>접근성(aria-live 상태 안내 등) 및 다국어 지원 검토</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    커밋 로그와 코드 내용을 기준으로 자동 정리한 문서입니다 · 01. weather
+  </footer>
+
+</div>
