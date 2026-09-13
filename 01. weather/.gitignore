@@ -18,6 +18,9 @@ lerna-debug.log*
 test-results/
 .playwright-mcp/
 
+# MCP config (contains API keys/tokens)
+.mcp.json
+
 # Editor / OS
 .vscode/*
 !.vscode/extensions.json
