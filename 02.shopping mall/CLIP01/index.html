@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<title>간단한 테트리스</title>
+<style>
+  body {
+    background: #111;
+    color: #eee;
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0;
+    padding: 24px;
+  }
+  h1 { font-size: 20px; margin-bottom: 8px; }
+  #wrap { display: flex; gap: 24px; align-items: flex-start; }
+  canvas {
+    background: #000;
+    border: 2px solid #555;
+  }
+  #side {
+    width: 140px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  #side b { color: #6cf; }
+  #gameover {
+    margin-top: 8px;
+    color: #f66;
+    font-weight: bold;
+    display: none;
+  }
+</style>
+</head>
+<body>
+  <h1>간단한 테트리스</h1>
+  <div id="wrap">
+    <canvas id="board" width="240" height="480"></canvas>
+    <div id="side">
+      <div>점수: <b id="score">0</b></div>
+      <div>줄 삭제: <b id="lines">0</b></div>
+      <hr />
+      <div>조작법</div>
+      <div>← → : 이동</div>
+      <div>↓ : 빨리 내리기</div>
+      <div>↑ : 회전</div>
+      <div>Space : 즉시 낙하</div>
+      <div>P : 일시정지</div>
+      <div id="gameover">GAME OVER<br/>새로고침으로 재시작</div>
+    </div>
+  </div>
+
+<script>
+const COLS = 12, ROWS = 24, SIZE = 20;
+const canvas = document.getElementById('board');
+const ctx = canvas.getContext('2d');
+canvas.width = COLS * SIZE;
+canvas.height = ROWS * SIZE;
+
+const COLORS = [null, '#0ff', '#00f', '#f80', '#ff0', '#0f0', '#a0f', '#f00'];
+
+const SHAPES = [
+  [],
+  [[1,1,1,1]],                  // I
+  [[2,0,0],[2,2,2]],            // J
+  [[0,0,3],[3,3,3]],            // L
+  [[4,4],[4,4]],                // O
+  [[0,5,5],[5,5,0]],            // S
+  [[0,6,0],[6,6,6]],            // T
+  [[7,7,0],[0,7,7]],            // Z
+];
+
+function createMatrix(w, h) {
+  const m = [];
+  while (h--) m.push(new Array(w).fill(0));
+  return m;
+}
+
+function rotate(matrix) {
+  const N = matrix.length, M = matrix[0].length;
+  const result = createMatrix(N, M);
+  for (let y = 0; y < N; y++) {
+    for (let x = 0; x < M; x++) {
+      result[x][N - 1 - y] = matrix[y][x];
+    }
+  }
+  return result;
+}
+
+const board = createMatrix(COLS, ROWS);
+
+const player = {
+  pos: {x: 0, y: 0},
+  matrix: null,
+  score: 0,
+  lines: 0,
+};
+
+function randomPiece() {
+  const id = 1 + Math.floor(Math.random() * (SHAPES.length - 1));
+  return SHAPES[id].map(row => row.slice());
+}
+
+function resetPlayer() {
+  player.matrix = randomPiece();
+  player.pos.y = 0;
+  player.pos.x = Math.floor(COLS / 2) - Math.floor(player.matrix[0].length / 2);
+  if (collide(board, player)) {
+    gameOver = true;
+    document.getElementById('gameover').style.display = 'block';
+  }
+}
+
+function collide(board, player) {
+  const m = player.matrix, o = player.pos;
+  for (let y = 0; y < m.length; y++) {
+    for (let x = 0; x < m[y].length; x++) {
+      if (m[y][x] !== 0) {
+        const by = y + o.y, bx = x + o.x;
+        if (bx < 0 || bx >= COLS || by >= ROWS) return true;
+        if (by >= 0 && board[by][bx] !== 0) return true;
+      }
+    }
+  }
+  return false;
+}
+
+function merge(board, player) {
+  player.matrix.forEach((row, y) => {
+    row.forEach((value, x) => {
+      if (value !== 0) {
+        const by = y + player.pos.y, bx = x + player.pos.x;
+        if (by >= 0) board[by][bx] = value;
+      }
+    });
+  });
+}
+
+function sweep() {
+  let cleared = 0;
+  outer: for (let y = ROWS - 1; y >= 0; y--) {
+    for (let x = 0; x < COLS; x++) {
+      if (board[y][x] === 0) continue outer;
+    }
+    board.splice(y, 1);
+    board.unshift(new Array(COLS).fill(0));
+    cleared++;
+    y++;
+  }
+  if (cleared > 0) {
+    player.lines += cleared;
+    player.score += [0, 100, 300, 500, 800][cleared] || cleared * 200;
+    document.getElementById('score').textContent = player.score;
+    document.getElementById('lines').textContent = player.lines;
+  }
+}
+
+function playerMove(dir) {
+  player.pos.x += dir;
+  if (collide(board, player)) player.pos.x -= dir;
+}
+
+function playerRotate() {
+  const oldMatrix = player.matrix;
+  const oldX = player.pos.x;
+  player.matrix = rotate(player.matrix);
+  let offset = 1;
+  while (collide(board, player)) {
+    player.pos.x += offset;
+    offset = -(offset + (offset > 0 ? 1 : -1));
+    if (offset > player.matrix[0].length + 1) {
+      player.matrix = oldMatrix;
+      player.pos.x = oldX;
+      return;
+    }
+  }
+}
+
+function playerDrop() {
+  player.pos.y++;
+  if (collide(board, player)) {
+    player.pos.y--;
+    merge(board, player);
+    sweep();
+    resetPlayer();
+  }
+  dropCounter = 0;
+}
+
+function hardDrop() {
+  while (!collide(board, player)) player.pos.y++;
+  player.pos.y--;
+  merge(board, player);
+  sweep();
+  resetPlayer();
+  dropCounter = 0;
+}
+
+function drawCell(x, y, colorIdx) {
+  ctx.fillStyle = COLORS[colorIdx];
+  ctx.fillRect(x * SIZE, y * SIZE, SIZE - 1, SIZE - 1);
+}
+
+function draw() {
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  board.forEach((row, y) => {
+    row.forEach((value, x) => {
+      if (value !== 0) drawCell(x, y, value);
+    });
+  });
+
+  player.matrix.forEach((row, y) => {
+    row.forEach((value, x) => {
+      if (value !== 0) drawCell(x + player.pos.x, y + player.pos.y, value);
+    });
+  });
+}
+
+let dropCounter = 0;
+let dropInterval = 600;
+let lastTime = 0;
+let gameOver = false;
+let paused = false;
+
+function update(time = 0) {
+  if (gameOver) return;
+  if (!paused) {
+    const delta = time - lastTime;
+    dropCounter += delta;
+    if (dropCounter > dropInterval) playerDrop();
+  }
+  lastTime = time;
+  draw();
+  requestAnimationFrame(update);
+}
+
+document.addEventListener('keydown', event => {
+  if (gameOver) return;
+  if (event.key === 'p' || event.key === 'P') {
+    paused = !paused;
+    return;
+  }
+  if (paused) return;
+  if (event.key === 'ArrowLeft') playerMove(-1);
+  else if (event.key === 'ArrowRight') playerMove(1);
+  else if (event.key === 'ArrowDown') playerDrop();
+  else if (event.key === 'ArrowUp') playerRotate();
+  else if (event.key === ' ') { event.preventDefault(); hardDrop(); }
+});
+
+resetPlayer();
+update();
+</script>
+</body>
+</html>
