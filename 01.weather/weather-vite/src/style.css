@@ -1,0 +1,221 @@
+:root {
+  --bg-top: #4facfe;
+  --bg-bottom: #00f2fe;
+  --card-bg: rgba(255, 255, 255, 0.18);
+  --card-border: rgba(255, 255, 255, 0.35);
+  --text: #ffffff;
+  --text-dim: rgba(255, 255, 255, 0.75);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
+  background: linear-gradient(160deg, var(--bg-top), var(--bg-bottom));
+  color: var(--text);
+  display: flex;
+  justify-content: center;
+  padding: 32px 16px;
+}
+
+.app {
+  width: 100%;
+  max-width: 480px;
+}
+
+.search-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.search-bar input {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  color: var(--text);
+  font-size: 16px;
+  outline: none;
+  backdrop-filter: blur(8px);
+}
+
+.search-bar input::placeholder {
+  color: var(--text-dim);
+}
+
+.search-bar button {
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 0 14px;
+  font-size: 18px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+}
+
+.search-bar button:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.suggestions {
+  list-style: none;
+  margin: 0 0 16px 0;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+.suggestions.hidden { display: none; }
+
+.suggestions li {
+  padding: 10px 14px;
+  color: #1a1a1a;
+  cursor: pointer;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.suggestions li:hover {
+  background: #eef4ff;
+}
+
+.content {
+  margin-top: 16px;
+}
+
+.placeholder {
+  text-align: center;
+  color: var(--text-dim);
+  margin-top: 60px;
+  font-size: 15px;
+}
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  padding: 24px;
+  backdrop-filter: blur(10px);
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.card .location {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.card .updated {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.card .icon {
+  font-size: 64px;
+  margin: 8px 0;
+}
+
+.card .temp {
+  font-size: 56px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.card .desc {
+  font-size: 16px;
+  margin-top: 4px;
+  color: var(--text-dim);
+}
+
+.details {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.details .detail-item {
+  background: rgba(255,255,255,0.12);
+  border-radius: 12px;
+  padding: 10px 6px;
+}
+
+.details .detail-item .label {
+  font-size: 11px;
+  color: var(--text-dim);
+  display: block;
+}
+
+.details .detail-item .value {
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 4px;
+  display: block;
+}
+
+.forecast {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  padding: 16px;
+  backdrop-filter: blur(10px);
+}
+
+.forecast h3 {
+  margin: 0 0 12px 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+.forecast-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 4px;
+  font-size: 14px;
+}
+
+.forecast-row + .forecast-row {
+  border-top: 1px solid rgba(255,255,255,0.15);
+}
+
+.forecast-row .day {
+  flex: 1;
+  font-weight: 500;
+}
+
+.forecast-row .icon-small {
+  font-size: 20px;
+  flex: 1;
+  text-align: center;
+}
+
+.forecast-row .range {
+  flex: 1;
+  text-align: right;
+  color: var(--text-dim);
+}
+
+.forecast-row .range .max {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.error {
+  text-align: center;
+  color: #fff3f3;
+  background: rgba(255, 80, 80, 0.25);
+  border: 1px solid rgba(255,255,255,0.3);
+  padding: 14px;
+  border-radius: 12px;
+  margin-top: 40px;
+}
